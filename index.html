@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+  <meta name="theme-color" content="#f5fbf5"/>
+  <meta name="description" content="Offline rice disease detector using edge AI. Diagnostic tool for local Filipino farmers."/>
+  <title>RiceCare</title>
+  
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/icon-192.png">
+
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+  
+  <link rel="stylesheet" href="/src/index.css">
+
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+                  "secondary-fixed": "#e2e2e2",
+                  "primary-fixed": "#85f8c4",
+                  "on-secondary-fixed-variant": "#474747",
+                  "on-tertiary-fixed": "#410004",
+                  "surface-dim": "#d5dcd6",
+                  "on-primary": "#ffffff",
+                  "error-container": "#ffdad6",
+                  "primary-container": "#00855d",
+                  "on-tertiary": "#ffffff",
+                  "error": "#ba1a1a",
+                  "primary-fixed-dim": "#68dba9",
+                  "tertiary-fixed": "#ffdad7",
+                  "primary": "#006948",
+                  "tertiary-fixed-dim": "#ffb3ae",
+                  "surface-container-low": "#eff5ef",
+                  "secondary": "#5e5e5e",
+                  "on-primary-container": "#f5fff7",
+                  "inverse-on-surface": "#ecf2ec",
+                  "tertiary-container": "#ba5551",
+                  "surface-container-highest": "#dee4de",
+                  "surface-tint": "#006c4a",
+                  "secondary-container": "#e2e2e2",
+                  "on-tertiary-container": "#fffbff",
+                  "surface-container-lowest": "#ffffff",
+                  "on-secondary-fixed": "#1b1b1b",
+                  "on-primary-fixed-variant": "#005137",
+                  "tertiary": "#9b3e3b",
+                  "on-primary-fixed": "#002114",
+                  "on-secondary-container": "#646464",
+                  "outline-variant": "#bccac0",
+                  "surface-bright": "#f5fbf5",
+                  "outline": "#6d7a72",
+                  "on-tertiary-fixed-variant": "#7f2928",
+                  "surface-container": "#e9efe9",
+                  "on-error": "#ffffff",
+                  "on-secondary": "#ffffff",
+                  "on-surface-variant": "#3d4a42",
+                  "on-surface": "#171d19",
+                  "secondary-fixed-dim": "#c6c6c6",
+                  "surface": "#f5fbf5",
+                  "background": "#f5fbf5",
+                  "on-background": "#171d19",
+                  "inverse-primary": "#68dba9",
+                  "surface-container-high": "#e4eae4",
+                  "surface-variant": "#dee4de",
+                  "inverse-surface": "#2c322e",
+                  "on-error-container": "#93000a"
+          },
+          "borderRadius": {
+                  "DEFAULT": "0.25rem",
+                  "lg": "0.5rem",
+                  "xl": "0.75rem",
+                  "full": "9999px"
+          },
+          "spacing": {
+                  "stack-md": "16px",
+                  "touch-target-min": "48px",
+                  "stack-lg": "24px",
+                  "stack-sm": "8px",
+                  "stack-xl": "32px",
+                  "gutter": "16px",
+                  "inset-container": "20px"
+          },
+          "fontFamily": {
+                  "label-xl": ["Inter"],
+                  "label-md": ["Inter"],
+                  "headline-lg": ["Inter"],
+                  "headline-lg-mobile": ["Inter"],
+                  "button-text": ["Inter"],
+                  "body-lg": ["Inter"],
+                  "headline-xl": ["Inter"],
+                  "body-md": ["Inter"]
+          },
+          "fontSize": {
+                  "label-xl": ["18px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                  "label-md": ["14px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                  "headline-lg": ["24px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                  "headline-lg-mobile": ["20px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                  "button-text": ["18px", {"lineHeight": "1", "fontWeight": "700"}],
+                  "body-lg": ["18px", {"lineHeight": "1.5", "fontWeight": "400"}],
+                  "headline-xl": ["32px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                  "body-md": ["16px", {"lineHeight": "1.5", "fontWeight": "400"}]
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+    @keyframes scan {
+      0%, 100% { top: 0; }
+      50% { top: 100%; }
+    }
+    .animate-scan {
+      animation: scan 2s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="bg-background min-h-screen text-on-background font-sans select-none">
+<div class="max-w-md mx-auto bg-surface-container-lowest min-h-screen relative overflow-hidden shadow-2xl pb-24 pt-16">
+  <!-- TopAppBar -->
+  <header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-inset-container h-touch-target-min bg-surface border-b border-outline-variant transition-colors duration-200 max-w-md mx-auto right-0">
+    <div class="flex items-center gap-stack-sm text-primary">
+      <img src="/logo.png" alt="RiceCare Logo" class="h-7 w-auto object-contain">
+      <h1 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary">RiceCare</h1>
+    </div>
+    <div id="status-pill" class="flex items-center gap-stack-sm bg-surface-container-high px-stack-sm py-1 rounded-full border border-outline-variant">
+      <span id="status-dot" class="w-2.5 h-2.5 rounded-full bg-primary animate-pulse"></span>
+      <span id="status-text" class="font-label-md text-label-md text-on-surface">Loading</span>
+      <span class="material-symbols-outlined text-primary text-sm">smart_toy</span>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="p-gutter flex flex-col gap-stack-lg h-full pb-32">
+    <!-- Camera Viewfinder -->
+    <div class="relative w-full aspect-[3/4] bg-inverse-surface rounded-[1.5rem] shadow-xl overflow-hidden flex flex-col items-center justify-center border-2 border-outline-variant">
+      
+      <!-- Video Element & Preview -->
+      <video id="camera-stream" autoplay playsinline class="absolute inset-0 w-full h-full object-cover"></video>
+      <img id="image-preview" src="#" alt="Preview" class="absolute inset-0 w-full h-full object-cover hidden">
+
+      <!-- Viewfinder Overlay -->
+      <div class="absolute inset-0 bg-gradient-to-t from-inverse-surface/80 via-transparent to-transparent pointer-events-none"></div>
+      
+      <!-- Targeting Brackets -->
+      <div id="camera-guide" class="relative w-56 h-72 flex flex-col justify-between items-center z-10 pointer-events-none">
+        <div class="w-full flex justify-between">
+          <div class="w-8 h-8 border-t-4 border-l-4 border-on-primary rounded-tl-lg shadow-sm"></div>
+          <div class="w-8 h-8 border-t-4 border-r-4 border-on-primary rounded-tr-lg shadow-sm"></div>
+        </div>
+        <div class="bg-inverse-surface/70 px-4 py-2 rounded-full backdrop-blur-sm border border-outline/50">
+          <span class="font-label-md text-label-md text-on-primary">Align leaf within frame</span>
+        </div>
+        <div class="w-full flex justify-between">
+          <div class="w-8 h-8 border-b-4 border-l-4 border-on-primary rounded-bl-lg shadow-sm"></div>
+          <div class="w-8 h-8 border-b-4 border-r-4 border-on-primary rounded-br-lg shadow-sm"></div>
+        </div>
+      </div>
+
+      <!-- Scanner Line -->
+      <div id="scanner-line" class="absolute left-0 right-0 h-[2px] bg-primary-fixed hidden z-20 shadow-[0_0_15px_var(--color-primary-fixed)] animate-scan"></div>
+
+      <!-- Analysis Loader -->
+      <div id="analysis-loader" class="absolute inset-0 bg-inverse-surface/80 backdrop-blur-md flex flex-col items-center justify-center hidden z-30">
+        <div class="relative flex items-center justify-center">
+          <div class="w-12 h-12 border-4 border-inverse-on-surface/30 rounded-full"></div>
+          <div class="absolute w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+        </div>
+        <p class="font-label-md text-label-md text-inverse-on-surface uppercase tracking-widest mt-stack-md">Processing Leaf</p>
+      </div>
+
+      <!-- Camera Error Banner -->
+      <div id="camera-error-banner" class="absolute inset-0 bg-surface-container-highest/90 backdrop-blur-md flex flex-col items-center justify-center p-8 text-center hidden z-30">
+        <div class="w-14 h-14 bg-surface-container rounded-full flex items-center justify-center mb-stack-md border border-outline-variant">
+          <span class="material-symbols-outlined text-on-surface-variant">no_photography</span>
+        </div>
+        <p class="font-body-md text-body-md text-on-surface mb-stack-lg">Camera access is restricted or unavailable.</p>
+        <button id="dismiss-error-btn" class="h-touch-target-min px-6 rounded border border-outline-variant bg-surface-container-lowest font-button-text text-button-text text-on-surface hover:bg-surface-container-low transition-colors active:bg-surface-container">Dismiss</button>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-col gap-stack-md mt-auto z-10">
+      <input type="file" id="file-input" accept="image/*" class="hidden">
+      
+      <button id="capture-btn" disabled class="w-full h-14 bg-primary text-on-primary rounded-full font-button-text text-button-text flex items-center justify-center gap-stack-sm shadow-md active:scale-95 transition-transform duration-150 relative overflow-hidden group disabled:bg-surface-variant disabled:text-on-surface-variant disabled:cursor-not-allowed">
+        <span class="absolute inset-0 w-full h-full bg-white/20 scale-x-0 group-active:scale-x-100 origin-left transition-transform duration-300"></span>
+        <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">center_focus_strong</span>
+        Capture &amp; Analyze
+      </button>
+      
+      <button id="upload-trigger" disabled class="w-full h-14 bg-surface text-primary border-2 border-primary/20 rounded-full font-button-text text-button-text flex items-center justify-center gap-stack-sm active:scale-95 transition-transform duration-150 hover:bg-surface-container-lowest disabled:bg-surface-container-lowest disabled:text-outline-variant disabled:border-outline-variant disabled:cursor-not-allowed">
+        <span class="material-symbols-outlined">photo_library</span>
+        Upload from Gallery
+      </button>
+
+      <!-- Scan Again button to show when results are visible -->
+      <button id="reset-btn" class="hidden w-full h-14 bg-surface text-primary border-2 border-primary/20 rounded-full font-button-text text-button-text flex items-center justify-center gap-stack-sm active:scale-95 transition-transform duration-150 hover:bg-surface-container-lowest">
+        <span class="material-symbols-outlined">restart_alt</span>
+        Scan Again
+      </button>
+    </div>
+  </main>
+
+  <!-- Diagnosis Bottom Sheet (Overlay) -->
+  <div id="results-card" class="hidden absolute bottom-24 left-0 w-full px-gutter z-40 transition-transform duration-500 ease-out translate-y-0">
+    <div class="bg-surface rounded-xl border border-outline-variant shadow-xl p-stack-md flex flex-col gap-stack-md backdrop-blur-md bg-surface/95">
+      <div class="flex justify-between items-center border-b border-outline-variant pb-stack-sm">
+        <h2 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface flex items-center gap-2">
+          <span class="material-symbols-outlined text-primary">fact_check</span>
+          Diagnosis Complete
+        </h2>
+        <button id="close-results-btn" class="text-on-surface-variant p-1 rounded-full hover:bg-surface-container-highest active:scale-90 transition-transform">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div id="result-severity-container" class="p-stack-md bg-error-container/30 rounded-lg border border-error/30 flex flex-col gap-stack-md relative overflow-hidden">
+        <div id="result-severity-bg" class="absolute top-0 right-0 w-24 h-24 bg-error/5 rounded-bl-full"></div>
+        
+        <div class="flex items-start gap-stack-sm relative z-10">
+          <span id="result-icon" class="material-symbols-outlined text-error text-3xl" style="font-variation-settings: 'FILL' 1;">warning</span>
+          <div class="flex flex-col">
+            <span id="result-disease" class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-error leading-tight">Disease Name</span>
+            <span id="result-severity" class="font-label-md text-label-md text-on-surface-variant mt-1">Severity Detail</span>
+          </div>
+        </div>
+        
+        <div class="flex flex-col gap-2 relative z-10">
+          <div id="result-confidence-text-container" class="flex justify-between font-label-md text-label-md text-on-error-container">
+            <span>Confidence Score</span>
+            <span class="font-bold"><span id="result-confidence">0</span>%</span>
+          </div>
+          <div class="w-full bg-surface-container-highest h-2.5 rounded-full overflow-hidden shadow-inner">
+            <div id="result-confidence-bar" class="h-full bg-error w-[0%] rounded-full relative transition-all duration-500">
+              <div class="absolute inset-0 bg-white/20 w-full h-full animate-[pulse_2s_ease-in-out_infinite]"></div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="bg-surface/80 p-3 rounded-md border border-outline-variant/50 relative z-10">
+          <p class="font-body-md text-body-md text-on-surface">
+            <strong class="text-on-surface font-bold block mb-1">Recommended Action:</strong> 
+            <span id="result-desc">Recommendation goes here.</span>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- History Modal (Full Screen Overlay) -->
+  <div id="history-modal" class="hidden absolute inset-0 bg-surface z-50 flex flex-col transition-transform duration-300 translate-y-full">
+    <header class="flex justify-between items-center px-gutter h-touch-target-min bg-surface border-b border-outline-variant shrink-0">
+      <h2 class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-on-surface flex items-center gap-2">
+        <span class="material-symbols-outlined text-primary">history</span>
+        Scan History
+      </h2>
+      <button id="close-history-btn" class="text-on-surface-variant p-1 rounded-full hover:bg-surface-container-highest active:scale-90 transition-transform">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </header>
+    
+    <div class="flex-1 overflow-y-auto p-gutter bg-surface-container-lowest">
+      <div id="history-list" class="flex flex-col gap-stack-md">
+        <!-- History items will be injected here dynamically -->
+      </div>
+      <div id="history-empty-state" class="hidden flex-col items-center justify-center h-full text-center mt-12">
+        <span class="material-symbols-outlined text-outline text-6xl mb-4">inbox</span>
+        <p class="font-body-lg text-body-lg text-on-surface-variant font-bold">No scans yet</p>
+        <p class="font-body-md text-body-md text-outline mt-2">Your past diagnoses will appear here.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hidden Pipeline Elements -->
+  <canvas id="hidden-canvas" class="hidden" width="224" height="224"></canvas>
+  <img id="hidden-img-loader" class="hidden" src="#" alt="Internal Preprocess Loader">
+
+  <!-- BottomNavBar -->
+  <nav class="fixed bottom-0 left-0 w-full z-50 flex justify-around items-center px-gutter pb-4 h-20 bg-surface border-t border-outline-variant max-w-md mx-auto right-0">
+    <a id="nav-gallery-btn" class="flex flex-col items-center justify-center text-on-surface-variant h-touch-target-min w-touch-target-min hover:text-primary active:scale-95 transition-transform duration-150" href="#">
+      <span class="material-symbols-outlined">photo_library</span>
+      <span class="font-label-md text-label-md mt-1 text-[10px]">Gallery</span>
+    </a>
+    <a id="nav-capture-btn" class="flex flex-col items-center justify-center bg-primary-container text-on-primary-container rounded-full w-14 h-14 -mt-6 border-4 border-surface active:scale-95 transition-transform duration-150 shadow-lg relative z-10" href="#">
+      <span class="material-symbols-outlined text-2xl" style="font-variation-settings: 'FILL' 1;">center_focus_strong</span>
+    </a>
+    <a id="nav-history-btn" class="flex flex-col items-center justify-center text-on-surface-variant h-touch-target-min w-touch-target-min hover:text-primary active:scale-95 transition-transform duration-150" href="#">
+      <span class="material-symbols-outlined">history</span>
+      <span class="font-label-md text-label-md mt-1 text-[10px]">History</span>
+    </a>
+  </nav>
+</div>
+
+<script type="module" src="/src/main.js"></script>
+</body>
+</html>
