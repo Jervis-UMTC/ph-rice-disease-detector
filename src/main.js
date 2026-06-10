@@ -5,27 +5,26 @@ import * as tflite from '@tensorflow/tfjs-tflite';
 // 1. CONSTANTS & APPLICATION STATE
 // ==========================================
 
-// List of target rice leaf disease classes (Length: 14)
 const LABELS = [
-  'Bacterial Blight',
+  'Bacterial Leaf Blight',
   'Bacterial Leaf Streak',
-  'Bacterial Panicle Blight',
-  'Blast',
+  'Bakanae',
   'Brown Spot',
-  'Dead Heart',
-  'Downy Mildew',
+  'Grassy Stunt Virus',
   'Healthy',
-  'Hispa',
-  'Leaf Smut',
   'Narrow Brown Spot',
-  'Tungro',
-  'White Stem Borer',
-  'Yellow Stem Borer'
+  'Ragged Stunt Virus',
+  'Rice Blast',
+  'Rice False Smut',
+  'Sheath Blight',
+  'Sheath Rot',
+  'Stem Rot',
+  'Tungro Virus'
 ];
 
 // Rich descriptions & recommendations for local farmers (Philippine Agricultural context)
 const DISEASE_DETAILS = {
-  'Bacterial Blight': {
+  'Bacterial Leaf Blight': {
     desc: 'Water-soaked lesions on leaf tips that merge and turn yellow-white, drying up the leaf.',
     recommendation: 'Ensure proper field drainage. Avoid excess nitrogen fertilizer. Use resistant seed varieties.',
     severity: 'High Risk'
@@ -35,14 +34,9 @@ const DISEASE_DETAILS = {
     recommendation: 'Keep fields clean of crop weeds. Avoid flooded conditions. Implement crop rotation.',
     severity: 'Medium Risk'
   },
-  'Bacterial Panicle Blight': {
-    desc: 'Panicles turn brown and grain hulls rot or discolor, leading to severe yield loss.',
-    recommendation: 'Use certified disease-free seeds. Avoid high-humidity planting periods. Clean equipment.',
-    severity: 'High Risk'
-  },
-  'Blast': {
-    desc: 'Spindle-shaped spots with gray centers and reddish-brown borders on leaves or necks.',
-    recommendation: 'Avoid excess nitrogen. Apply recommended systemic fungicides if damage exceeds 10% threshold.',
+  'Bakanae': {
+    desc: 'Abnormally tall, pale green plants caused by fungal infection. Often called foolish seedling disease.',
+    recommendation: 'Use clean, certified seeds. Treat seeds with recommended fungicides before planting.',
     severity: 'High Risk'
   },
   'Brown Spot': {
@@ -50,49 +44,54 @@ const DISEASE_DETAILS = {
     recommendation: 'Apply nitrogen in split doses. Improve soil potassium levels and field drainage.',
     severity: 'Medium Risk'
   },
-  'Dead Heart': {
-    desc: 'Stem drying and death of the central leaf whorl caused by early-stage stem borer larval boring.',
-    recommendation: 'Release biological controls (Trichogramma wasps). Install light traps. Uproot dead hearts.',
+  'Grassy Stunt Virus': {
+    desc: 'Severe stunting, excessive tillering, and pale green to yellow narrow leaves.',
+    recommendation: 'Control brown planthopper vectors. Destroy infected stubble and use resistant varieties.',
     severity: 'High Risk'
-  },
-  'Downy Mildew': {
-    desc: 'Pale yellow streaks and white powdery fungal growth on leaf surfaces under cool, humid conditions.',
-    recommendation: 'Rogue infected hills. Use certified seeds. Apply copper fungicides if infection is widespread.',
-    severity: 'Medium Risk'
   },
   'Healthy': {
     desc: 'Leaves are vibrant green and show no signs of infection, spotting, or insect damage.',
     recommendation: 'Maintain regular watering, weeding, and balanced nitrogen-potassium fertilizer applications.',
     severity: 'Optimal'
   },
-  'Hispa': {
-    desc: 'Insects scrape upper leaf tissue, creating white parallel lines resembling streaks.',
-    recommendation: 'Handpick beetles. Avoid excess nitrogen. Maintain clean field borders to remove alternate hosts.',
-    severity: 'Medium Risk'
-  },
-  'Leaf Smut': {
-    desc: 'Small, slightly raised black spots on leaves resembling charcoal dust.',
-    recommendation: 'Rarely causes severe loss. Implement crop rotation and destroy stubble after harvest.',
-    severity: 'Low Risk'
-  },
   'Narrow Brown Spot': {
     desc: 'Short, narrow, reddish-brown spots running parallel to the leaf veins.',
     recommendation: 'Use resistant crop cultivars. Ensure balanced nutrition (adequate potassium levels).',
     severity: 'Low Risk'
   },
-  'Tungro': {
+  'Ragged Stunt Virus': {
+    desc: 'Stunted plants with ragged, twisted, or distorted leaves and empty panicles.',
+    recommendation: 'Manage brown planthopper populations. Synchronize planting and plow under infected stubble.',
+    severity: 'High Risk'
+  },
+  'Rice Blast': {
+    desc: 'Spindle-shaped spots with gray centers and reddish-brown borders on leaves or necks.',
+    recommendation: 'Avoid excess nitrogen. Apply recommended systemic fungicides if damage exceeds 10% threshold.',
+    severity: 'High Risk'
+  },
+  'Rice False Smut': {
+    desc: 'Fungal infection transforming individual grains into large, velvety green or black spore balls.',
+    recommendation: 'Apply preventative fungicides during the booting stage. Avoid high nitrogen late in the season.',
+    severity: 'Medium Risk'
+  },
+  'Sheath Blight': {
+    desc: 'Oval, greenish-gray water-soaked spots on leaf sheaths that merge and cause lodging.',
+    recommendation: 'Reduce planting density. Improve canopy airflow and avoid excessive nitrogen.',
+    severity: 'High Risk'
+  },
+  'Sheath Rot': {
+    desc: 'Rotting of the uppermost leaf sheath enclosing the panicle, often with powdery fungal growth.',
+    recommendation: 'Ensure panicles emerge fully. Manage stem borers which can facilitate fungal entry.',
+    severity: 'Medium Risk'
+  },
+  'Stem Rot': {
+    desc: 'Black lesions on the outer leaf sheath near the water line, leading to stem lodging.',
+    recommendation: 'Drain the field to reduce moisture. Burn or plow under diseased stubble after harvest.',
+    severity: 'High Risk'
+  },
+  'Tungro Virus': {
     desc: 'Viral disease causing yellow-orange leaves and stunted growth. Spread by green leafhoppers.',
     recommendation: 'Uproot infected hills. Set up light traps to control green leafhoppers. Plant resistant crops.',
-    severity: 'High Risk'
-  },
-  'White Stem Borer': {
-    desc: 'Empty, bleached-white panicles (whiteheads) caused by larvae boring into stem bases during flowering.',
-    recommendation: 'Collect egg masses in seedbeds. Use light traps. Clip leaf tips before transplanting.',
-    severity: 'High Risk'
-  },
-  'Yellow Stem Borer': {
-    desc: 'Bores stems causing deadhearts or whiteheads. High occurrence in wet season irrigated fields.',
-    recommendation: 'Set up pheromone traps. Conserve natural predators (spiders, dragonflies). Manage stubble.',
     severity: 'High Risk'
   }
 };
@@ -124,7 +123,6 @@ const resultsCard = document.getElementById('results-card');
 const resultDiseaseText = document.getElementById('result-disease');
 const resultConfidenceText = document.getElementById('result-confidence');
 const resultDescText = document.getElementById('result-desc');
-const resultRecText = document.getElementById('result-desc'); // Maps recommendations
 const resultSeverityText = document.getElementById('result-severity');
 
 const hiddenCanvas = document.getElementById('hidden-canvas');
@@ -350,43 +348,62 @@ async function runInference(sourceElement) {
   analysisLoaderEl.classList.remove('hidden');
   scannerLineEl.classList.remove('hidden');
 
-  // Perform draw with center crop to maintain aspect ratio and prevent squashing
-  const ctx = hiddenCanvas.getContext('2d');
-  const srcWidth = sourceElement.videoWidth || sourceElement.naturalWidth || sourceElement.width || 224;
-  const srcHeight = sourceElement.videoHeight || sourceElement.naturalHeight || sourceElement.height || 224;
-  const size = Math.min(srcWidth, srcHeight);
-  
-  // Calculate source square coordinates (center crop)
-  const sx = (srcWidth - size) / 2;
-  const sy = (srcHeight - size) / 2;
-  
-  ctx.clearRect(0, 0, hiddenCanvas.width, hiddenCanvas.height);
-  ctx.drawImage(sourceElement, sx, sy, size, size, 0, 0, hiddenCanvas.width, hiddenCanvas.height);
-
-  // Small delay to let the UI render the loading overlays nicely (aesthetic micro-delay)
-  await new Promise(resolve => setTimeout(resolve, 800));
-
   try {
+    // Perform draw with center crop to maintain aspect ratio and prevent squashing
+    const ctx = hiddenCanvas.getContext('2d');
+    const srcWidth = sourceElement.videoWidth || sourceElement.naturalWidth || sourceElement.width || 224;
+    const srcHeight = sourceElement.videoHeight || sourceElement.naturalHeight || sourceElement.height || 224;
+    const size = Math.max(1, Math.min(srcWidth, srcHeight));
+    
+    // Calculate source square coordinates (center crop)
+    const sx = (srcWidth - size) / 2;
+    const sy = (srcHeight - size) / 2;
+    
+    ctx.clearRect(0, 0, hiddenCanvas.width, hiddenCanvas.height);
+    ctx.drawImage(sourceElement, sx, sy, size, size, 0, 0, hiddenCanvas.width, hiddenCanvas.height);
+
+    // Small delay to let the UI render the loading overlays nicely (aesthetic micro-delay)
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    // Dynamically get expected input shape and dtype from the loaded TFLite model
+    const inputDetails = model.inputs[0];
+    const inputShape = inputDetails.shape || [1, 224, 224, 3];
+    let inputDtype = inputDetails.dtype || 'float32';
+    if (inputDtype === 'uint8') inputDtype = 'int32'; // tf.browser.fromPixels uses int32 for uint8 pixel data
+
+    const targetHeight = inputShape[1] || 224;
+    const targetWidth = inputShape[2] || 224;
+
+    // Use a fixed-size target canvas to avoid aspect ratio squashing and memory issues
+    const tensorCanvas = document.createElement('canvas');
+    tensorCanvas.width = targetWidth;
+    tensorCanvas.height = targetHeight;
+    const tensorCtx = tensorCanvas.getContext('2d');
+
+    tensorCtx.clearRect(0, 0, targetWidth, targetHeight);
+    tensorCtx.drawImage(sourceElement, sx, sy, size, size, 0, 0, targetWidth, targetHeight);
+
+    // Small delay to let the UI render the loading overlays nicely (aesthetic micro-delay)
+    await new Promise(resolve => setTimeout(resolve, 800));
+
     // 1. Prepare input tensor using tf.tidy to avoid WebGL memory leaks
     const batched = tf.tidy(() => {
-      // Read pixels from canvas
-      const pixels = tf.browser.fromPixels(hiddenCanvas);
+      // Read pixels from target canvas
+      const pixels = tf.browser.fromPixels(tensorCanvas);
       
-      // Resize to MobileNetV2 target [224, 224] using nearest neighbor
-      const resized = tf.image.resizeNearestNeighbor(pixels, [224, 224]);
-      
-      // Cast values to float32
-      const floatImg = resized.toFloat();
-      
-      // Divide by 255.0 for 0-1 range normalization
-      const normalized = floatImg.div(tf.scalar(255.0));
-      
-      // Expand dimensions to [1, 224, 224, 3] for batched input representation
-      return normalized.expandDims(0);
+      // Cast and normalize based on the model's expected dtype
+      if (inputDtype === 'float32') {
+        // Models expecting float32 usually expect 0-1 range
+        return pixels.toFloat().div(tf.scalar(255.0)).expandDims(0);
+      } else {
+        // Models expecting int32/uint8 typically expect raw 0-255 pixel values
+        return pixels.cast(inputDtype).expandDims(0);
+      }
     });
 
     // 2. Predict using TFLite model
     const prediction = model.predict(batched);
+    batched.dispose(); // Immediate disposal
     
     // 3. Extract data from prediction tensor (handle output formats dynamically)
     let outputData;
@@ -401,9 +418,6 @@ async function runInference(sourceElement) {
       outputData = await prediction[keys[0]].data();
       Object.values(prediction).forEach(t => t.dispose());
     }
-    
-    // 4. Dispose the input tensor
-    batched.dispose();
 
     // Process output array (Length 14)
     let maxIdx = 0;
@@ -537,6 +551,11 @@ captureBtn.addEventListener('click', async () => {
   ctx.drawImage(videoEl, 0, 0, hiddenCanvas.width, hiddenCanvas.height);
   
   imgPreviewEl.src = hiddenCanvas.toDataURL('image/jpeg');
+  
+  await new Promise(resolve => {
+    imgPreviewEl.onload = resolve;
+  });
+
   imgPreviewEl.classList.remove('hidden');
   videoEl.classList.add('hidden');
   
