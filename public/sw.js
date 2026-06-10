@@ -1,5 +1,5 @@
 // RiceCare: Disease Detector - Offline Service Worker
-const CACHE_NAME = 'ricecare-cache-v4';
+const CACHE_NAME = 'ricecare-cache-v5';
 
 // Assets to pre-cache immediately on installation
 const PRECACHE_ASSETS = [
